@@ -5,7 +5,7 @@ resource "aws_vpc" "name" {
     var.comman_tags,
     var.vpc_tags,
     {
-        Name = local.Name
+        Name = local.name
 
     }
     )
@@ -18,7 +18,7 @@ resource "aws_internet_gateway" "name" {
         var.comman_tags,
         var.igw_tags,
         {
-            Name = local.Name
+            Name = local.name
         }
 
     )
@@ -34,7 +34,7 @@ resource "aws_subnet" "public" {
     var.comman_tags,
     var.public_subnet_tags,
     {
-        Name = "${local.Name}-public-${local.az_names[count.index]}"
+        Name = "${local.name}-public-${local.az_names[count.index]}"
     }
   )
 }
@@ -47,7 +47,7 @@ resource "aws_subnet" "private" {
     var.comman_tags,
     var.private_subnet_tags,
     {
-        Name = "${local.Name}-private-${local.az_names[count.index]}"
+        Name = "${local.name}-private-${local.az_names[count.index]}"
     }
   )
 }
@@ -60,14 +60,12 @@ resource "aws_subnet" "database" {
     var.comman_tags,
     var.private_subnet_tags,
     {
-        Name = "${local.Name}-database-${local.az_names[count.index]}"
+        Name = "${local.name}-database-${local.az_names[count.index]}"
     }
   )
 }
 
-resource "aws_db_subnet_group" "default" {
-  name =  "${local.Name}"
-}
+
 
 
 resource "aws_eip" "eip" {
@@ -80,12 +78,9 @@ resource "aws_nat_gateway" "main" {
     var.comman_tags,
     var.nat_gateway_tags,
     {
-        Name="${local.Name}"
-        subnet_ids =aws_subnet.database[*].id
-        tags = {
-            Name="${local.Name}"
-        }
+        Name = "${local.name}"
     }
+    
   )
   
   depends_on = [ aws_internet_gateway.name ]
@@ -97,7 +92,7 @@ resource "aws_route_table" "public" {
         var.comman_tags,
         var.public_route_table_tags,
         {
-            Name = "${local.Name}-public"
+            Name = "${local.name}-public"
         }
     )
   
@@ -109,7 +104,7 @@ resource "aws_route_table" "private" {
         var.comman_tags,
         var.private_route_table_tags,
         {
-            Name = "${local.Name}-private"
+            Name = "${local.name}-private"
         }
     )
   
@@ -120,7 +115,7 @@ resource "aws_route_table" "database" {
         var.comman_tags,
         var.database_route_table_tags,
         {
-            Name = "${local.Name}-database"
+            Name = "${local.name}-database"
         }
     )
   
@@ -161,5 +156,13 @@ resource "aws_route_table_association" "database" {
   route_table_id = aws_route_table.database.id
 }
   
+resource "aws_db_subnet_group" "default" {
+  name       = "${local.name}"
+  subnet_ids = aws_subnet.database[*].id
+
+  tags = {
+    Name = "${local.name}"
+  }
+}
 
 
