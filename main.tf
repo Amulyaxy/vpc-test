@@ -65,6 +65,11 @@ resource "aws_subnet" "database" {
   )
 }
 
+resource "aws_db_subnet_group" "default" {
+  name =  "${local.Name}"
+}
+
+
 resource "aws_eip" "eip" {
   domain = "vpc"
 }
@@ -76,6 +81,10 @@ resource "aws_nat_gateway" "main" {
     var.nat_gateway_tags,
     {
         Name="${local.Name}"
+        subnet_ids =aws_subnet.database[*].id
+        tags = {
+            Name="${local.Name}"
+        }
     }
   )
   
